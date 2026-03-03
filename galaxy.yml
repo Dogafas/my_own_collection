@@ -1,0 +1,11 @@
+namespace: my_namespace
+name: my_collection
+version: 1.0.0
+readme: README.md
+authors:
+  - Cameron
+description: "My own collection with a custom module"
+license:
+  - MIT
+build_ignore:
+  - ansible
