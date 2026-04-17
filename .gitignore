@@ -1,1 +1,21 @@
+*.retry
+__pycache__/
+*.pyc
+
+# Локальные артефакты
+dist/
 TODO.md
+
+# Python
+__pycache__/
+*.pyc
+
+# Ansible build artifacts
+dist/
+*.tar.gz
+
+# VS Code
+.vscode/
+
+# System
+.DS_Store

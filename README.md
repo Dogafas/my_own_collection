@@ -1,64 +1,78 @@
-# Ansible Collection - my_own_namespace.yandex_cloud_elk
+# Ansible Collection — `my_own_namespace.yandex_cloud_elk`
 
-Данная коллекция представляет собой эталонный пример реализации пользовательского модуля и роли в экосистеме `Ansible`. Проект демонстрирует принципы инкапсуляции логики в модули на `Python` и их дистрибуцию через механизмы коллекций.
+Коллекция демонстрирует создание пользовательского Ansible‑модуля на Python и его интеграцию в роль.  
+Основная задача — создание текстового файла на целевом хосте с указанным содержимым.
 
-## Состав коллекции
+Коллекция включает:
 
-Коллекция включает в себя следующие компоненты:
-----------------------------------------------------------------------------------------
+- **Модуль `my_own_module`** — низкоуровневый Python‑модуль, создающий файл по заданному пути.
+- **Роль `create_file`** — высокоуровневая обёртка над модулем, предоставляющая значения по умолчанию.
 
-* Модуль `my_own_module`: Низкоуровневый инструмент на Python для управления состоянием файлов на целевых хостах.
-* Роль `create_file`: Высокоуровневая абстракция (обертка), предоставляющая интерфейс со значениями по умолчанию для быстрой настройки.
+---
 
-## Установка
+## Установка коллекции
 
-Для локальной установки после сборки используйте стандартный менеджер пакетов `ansible-galaxy`
+### 1. Сборка архива коллекции
+
+В корневой директории коллекции выполните:
+
+```bash
+ansible-galaxy collection build
+```
+
+Будет создан файл вида:
 
 ```
-# Сборка артефакта
+my_own_namespace-yandex_cloud_elk-1.0.0.tar.gz
+```
 
-ansible-galaxy collection build
+### 2. Установка из локального архива
 
-## Установка из архива
-
+```bash
 ansible-galaxy collection install my_own_namespace-yandex_cloud_elk-1.0.0.tar.gz
 ```
 
-После выполнения команд коллекция будет развернута в директорию по умолчанию:
+Коллекция будет установлена в:
 
-~~~
+```
 ~/.ansible/collections/ansible_collections/my_own_namespace/yandex_cloud_elk/
-~~~
-
-## Использование
-
-### 1. Через роль (рекомендуемый способ)
-
-Использование роли позволяет соблюдать принцип DRY, используя предустановленные переменные.
+```
 
 ---
+
+## Использование коллекции
+
+### 1. Использование роли (рекомендуемый способ)
+
+Файл: `playbooks/create_file.yml`
 
 ```yaml
 ---
-- hosts: localhost
+- name: Create file using collection role
+  hosts: localhost
   gather_facts: false
+
   roles:
-    - role: my_own_namespace.yandex_cloud_elk.create_file
-      vars:
-        path: /tmp/example_from_role.txt
-        content: "Created via role from collection"
+    - my_own_namespace.yandex_cloud_elk.create_file
 ```
+
+Роль использует значения по умолчанию из `defaults/main.yml`:
+
+```yaml
+path: /tmp/testfile.txt
+content: "Hello from my module"
+```
+
+---
 
 ### 2. Прямой вызов модуля
 
-Для специфических задач модуль можно вызывать в секции tasks напрямую.
-
----
-
 ```yaml
 ---
-- hosts: localhost
+- name: Create file directly via module
+  hosts: localhost
   gather_facts: false
+
   tasks:
     - name: Create file using custom module
       my_own_namespace.yandex_cloud_elk.my_own_module:
@@ -66,42 +80,55 @@ ansible-galaxy collection install my_own_namespace-yandex_cloud_elk-1.0.0.tar.gz
         content: "Created directly via module"
 ```
 
-### Параметры модуля `my_own_module`
+---
 
-| Параметр | Тип | Обязательный |                       Описание                       |
-| :----------------: | :------: | :------------------------: | :-------------------------------------------------------------: |
-|       path       | string |           Да           | Абсолютный путь к целевому файлу. |
-|     content     | string |           Да           | Текстовое содержимое для записи. |
+## Параметры модуля `my_own_module`
 
-Особенности: Модуль полностью идемпотентен.
+| Параметр | Тип    | Обязательный | Описание |
+|---------|--------|--------------|----------|
+| `path`  | string | Да           | Абсолютный путь к создаваемому файлу |
+| `content` | string | Да         | Содержимое, которое будет записано в файл |
 
-Система проверяет текущее состояние файла и вносит изменения только в случае несовпадения контента или отсутствия объекта.
+### Особенности
 
-### Структура репозитория
+- Модуль **идемпотентен**:  
+  если файл существует и содержимое совпадает — изменений не происходит.
+- Поддерживает **check_mode**.
 
+---
 
-
-Соблюдение стандартной иерархии обеспечивает корректное обнаружение плагинов движком `Ansible`:
+## Структура коллекции
 
 ```
 my_own_namespace/
 └── yandex_cloud_elk/
-├── galaxy.yml             # Метаданные коллекции
-├── plugins/
-│   └── modules/
-│       ├── __init__.py
-│       └── my_own_module.py # Логика на Python
-├── roles/
-│   └── create_file/       # Ansible-роль
-│       ├── defaults/
-│       ├── tasks/
-│       └── README.md
-└── meta/
-└── runtime.yml        # Ограничения версий и миграции
+    ├── galaxy.yml
+    ├── README.md
+    ├── meta/
+    │   └── runtime.yml
+    ├── plugins/
+    │   └── modules/
+    │       ├── __init__.py
+    │       └── my_own_module.py
+    ├── roles/
+    │   └── create_file/
+    │       ├── defaults/
+    │       │   └── main.yml
+    │       ├── tasks/
+    │       │   └── main.yml
+    │       ├── handlers/
+    │       ├── meta/
+    │       ├── templates/
+    │       ├── vars/
+    │       └── README.md
+    ├── playbooks/
+    │   └── create_file.yml
+    └── test_idempotent.yml
 ```
 
+---
 
+## Лицензия
 
-### Лицензия
+Коллекция распространяется под лицензией **GPL‑2.0‑or‑later**.
 
-Коллекция распространяется под лицензией GPL-2.0-or-later (Никаких гарантий: Программное обеспечение предоставляется «как есть», автор не несет ответственности за ошибки.).
