@@ -1,134 +1,88 @@
-# Ansible Collection — `my_own_namespace.yandex_cloud_elk`
+# My Own Ansible Collection
 
-Коллекция демонстрирует создание пользовательского Ansible‑модуля на Python и его интеграцию в роль.  
-Основная задача — создание текстового файла на целевом хосте с указанным содержимым.
+Этот репозиторий содержит учебную Ansible‑коллекцию `my_own_namespace.yandex_cloud_elk`, разработанную в рамках практического задания.  
+Коллекция включает собственный модуль, роль, тестовые playbook’и и примеры использования.
 
-Коллекция включает:
+## Структура репозитория
 
-- **Модуль `my_own_module`** — низкоуровневый Python‑модуль, создающий файл по заданному пути.
-- **Роль `create_file`** — высокоуровневая обёртка над модулем, предоставляющая значения по умолчанию.
+```
+my_own_collection/
+└── my_own_namespace/
+├── image.png
+├── image-1.png
+├── image-2.png
+├── screen.md
+├── playbooks/
+│   └── create_file.yml
+└── yandex_cloud_elk/
+├── galaxy.yml
+├── README.md
+├── meta/
+├── plugins/
+├── roles/
+├── playbooks/
+└── test_idempotent.yml
+```
 
----
+## Сборка коллекции
 
-## Установка коллекции
-
-### 1. Сборка архива коллекции
-
-В корневой директории коллекции выполните:
+Перейдите в каталог коллекции:
 
 ```bash
+cd my_own_namespace/yandex_cloud_elk
 ansible-galaxy collection build
 ```
 
-Будет создан файл вида:
+Будет создан архив вида:
 
-```
+```bash
 my_own_namespace-yandex_cloud_elk-1.0.0.tar.gz
 ```
 
-### 2. Установка из локального архива
+## Установка коллекции
 
 ```bash
-ansible-galaxy collection install my_own_namespace-yandex_cloud_elk-1.0.0.tar.gz
+ansible-galaxy collection install my_own_namespace-yandex_cloud_elk-1.0.0.tar.gz --force
 ```
 
-Коллекция будет установлена в:
 
-```
-~/.ansible/collections/ansible_collections/my_own_namespace/yandex_cloud_elk/
-```
+## Проверка работы модуля
 
----
-
-## Использование коллекции
-
-### 1. Использование роли (рекомендуемый способ)
-
-Файл: `playbooks/create_file.yml`
-
-```yaml
----
-- name: Create file using collection role
-  hosts: localhost
-  gather_facts: false
-
-  roles:
-    - my_own_namespace.yandex_cloud_elk.create_file
+```bash
+ansible-playbook test_idempotent.yml
+ansible-playbook test_idempotent.yml
 ```
 
-Роль использует значения по умолчанию из `defaults/main.yml`:
 
-```yaml
-path: /tmp/testfile.txt
-content: "Hello from my module"
+Ожидаемое поведение:
+
+- первый запуск: changed=1  
+- второй запуск: changed=0  
+
+## Проверка работы роли
+
+```bash
+ansible-playbook playbooks/create_file.yml
+ansible-playbook playbooks/create_file.yml
 ```
 
----
+Ожидаемое поведение:
 
-### 2. Прямой вызов модуля
+- первый запуск: changed=1  
+- второй запуск: changed=0  
 
-```yaml
----
-- name: Create file directly via module
-  hosts: localhost
-  gather_facts: false
+## Тегирование
 
-  tasks:
-    - name: Create file using custom module
-      my_own_namespace.yandex_cloud_elk.my_own_module:
-        path: /tmp/example_direct.txt
-        content: "Created directly via module"
+Коллекция помечена тегом:
+
+```bash
+1.0.0
 ```
 
----
 
-## Параметры модуля `my_own_module`
+Тег указывает на актуальное состояние репозитория.
 
-| Параметр | Тип    | Обязательный | Описание |
-|---------|--------|--------------|----------|
-| `path`  | string | Да           | Абсолютный путь к создаваемому файлу |
-| `content` | string | Да         | Содержимое, которое будет записано в файл |
+## Автор
 
-### Особенности
-
-- Модуль **идемпотентен**:  
-  если файл существует и содержимое совпадает — изменений не происходит.
-- Поддерживает **check_mode**.
-
----
-
-## Структура коллекции
-
-```
-my_own_namespace/
-└── yandex_cloud_elk/
-    ├── galaxy.yml
-    ├── README.md
-    ├── meta/
-    │   └── runtime.yml
-    ├── plugins/
-    │   └── modules/
-    │       ├── __init__.py
-    │       └── my_own_module.py
-    ├── roles/
-    │   └── create_file/
-    │       ├── defaults/
-    │       │   └── main.yml
-    │       ├── tasks/
-    │       │   └── main.yml
-    │       ├── handlers/
-    │       ├── meta/
-    │       ├── templates/
-    │       ├── vars/
-    │       └── README.md
-    ├── playbooks/
-    │   └── create_file.yml
-    └── test_idempotent.yml
-```
-
----
-
-## Лицензия
-
-Коллекция распространяется под лицензией **GPL‑2.0‑or‑later**.
+ByteBard
 
