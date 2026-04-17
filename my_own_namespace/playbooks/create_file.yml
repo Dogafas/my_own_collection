@@ -1,0 +1,7 @@
+---
+- name: Create file using collection role
+  hosts: localhost
+  gather_facts: false
+
+  roles:
+    - my_own_namespace.yandex_cloud_elk.create_file
